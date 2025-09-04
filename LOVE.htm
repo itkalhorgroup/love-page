@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>برای تو 💖</title>
+  <meta name="theme-color" content="#ff4d6d">
+  <style>
+    :root{
+      --bg: #0f0f12;
+      --card: #17171c;
+      --txt: #f6f7fb;
+      --sub: #cfd2dc;
+      --accent: #ff4d6d;
+      --accent-2:#ff8fab;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background: radial-gradient(1200px 800px at 50% -20%, #1d1d23, var(--bg));
+      color:var(--txt); font-family: Vazirmatn, system-ui, -apple-system, Segoe UI, Roboto, Arial; line-height:1.6;
+      display:flex; align-items:center; justify-content:center; padding:20px;
+    }
+    .card{
+      width:min(640px, 95vw); background:linear-gradient(180deg, #1b1b22 0%, var(--card) 100%); border-radius:24px; 
+      box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.03);
+      padding:28px; position:relative; overflow:hidden;
+    }
+    .glow{position:absolute; inset:-20%; background: radial-gradient(600px 300px at 50% 0%, rgba(255,77,109,.15), transparent 60%); pointer-events:none}
+    header{display:flex; align-items:center; gap:12px; margin-bottom:16px}
+    header .dot{width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px var(--accent)}
+    header h1{font-size:18px; margin:0; color:var(--sub); font-weight:600}
+
+    .canvas-wrap{display:grid; place-items:center; margin:8px 0 4px}
+    svg{width:min(420px, 85vw); height:auto; display:block}
+
+    /* draw animation */
+    .heart-path{ fill:none; stroke:url(#g); stroke-width:10; stroke-linecap:round; stroke-linejoin:round; filter: drop-shadow(0 6px 18px rgba(255,77,109,.35)); }
+    .heart-stroke{
+      stroke-dasharray: 2080; /* will be updated by JS to exact length */
+      stroke-dashoffset: 2080;
+      animation: draw 3s ease-in-out forwards .2s;
+    }
+    @keyframes draw{to{stroke-dashoffset:0}}
+
+    /* pulsing fill after draw */
+    .heart-fill{opacity:0; animation: pop .7s ease forwards 3.2s}
+    @keyframes pop{50%{opacity:.8; transform:scale(1.04)} 100%{opacity:1}}
+
+    /* message */
+    .msg{margin:14px auto 0; text-align:center}
+    .msg h2{margin:6px 0 4px; font-size:22px; font-weight:800; letter-spacing:.2px}
+    .msg p{margin:0; font-size:16px; color:var(--sub)}
+
+    /* badge */
+    .badge{display:inline-flex; gap:8px; align-items:center; padding:6px 12px; border-radius:999px; background:#22232a; color:#ffd9e1; font-size:12px; margin:8px auto 0}
+
+    /* footer */
+    .foot{margin-top:16px; text-align:center; font-size:12px; color:#9aa1b2}
+
+    /* confetti */
+    .confetti{position:absolute; inset:0; pointer-events:none}
+    .piece{position:absolute; width:8px; height:14px; opacity:0; transform:translateY(-20px) rotate(0deg)}
+    @keyframes fall{ to { transform: translateY(110vh) rotate(360deg); opacity: 1 } }
+
+    button.share{
+      margin:14px auto 0; display:block; padding:10px 16px; border-radius:14px; border:0; cursor:pointer; font-weight:700;
+      background:linear-gradient(90deg, var(--accent), var(--accent-2)); color:white; box-shadow:0 8px 22px rgba(255,77,109,.35);
+    }
+  </style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="glow"></div>
+    <header>
+      <span class="dot"></span>
+      <h1>یک قلب برای تو</h1>
+    </header>
+
+    <div class="canvas-wrap">
+      <svg viewBox="-220 -220 440 440" role="img" aria-label="قلب">
+        <defs>
+          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#ff8fab"/>
+            <stop offset="100%" stop-color="#ff4d6d"/>
+          </linearGradient>
+          <radialGradient id="fillG" cx="50%" cy="40%" r="60%">
+            <stop offset="0%" stop-color="#ff8fab" stop-opacity=".95"/>
+            <stop offset="100%" stop-color="#ff4d6d" stop-opacity=".9"/>
+          </radialGradient>
+        </defs>
+        <!-- Stroke path (drawn) -->
+        <path id="heart" class="heart-path heart-stroke" d="M0,-40 
+             C -80,-140 -230,-30 -150,80 
+             C -80,170 0,210 0,210 
+             C 0,210 80,170 150,80 
+             C 230,-30 80,-140 0,-40 Z"/>
+        <!-- Fill after stroke completes -->
+        <path class="heart-path heart-fill" fill="url(#fillG)" d="M0,-40 
+             C -80,-140 -230,-30 -150,80 
+             C -80,170 0,210 0,210 
+             C 0,210 80,170 150,80 
+             C 230,-30 80,-140 0,-40 Z"/>
+      </svg>
+    </div>
+
+    <div class="msg">
+      <h2 id="title"> دوستت دارم دخترم</h2>
+      <p id="text">مرسی که هستی</p>
+      <div class="badge">بمونی برام</div>
+      <button class="share" id="shareBtn" title="اشتراک‌گذاری">دریافت پیام</button>
+    </div>
+
+
+  <script>
+    // Fit the stroke length to path
+    const path = document.getElementById('heart');
+    const len = path.getTotalLength();
+    path.style.strokeDasharray = len;
+    path.style.strokeDashoffset = len;
+
+    // URL params -> title + message
+    const p = new URLSearchParams(location.search);
+    const title = p.get('title');
+    const msg = p.get('msg');
+    if(title) document.getElementById('title').textContent = title;
+    if(msg) document.getElementById('text').textContent = msg;
+
+    // Confetti after animation ends
+    setTimeout(()=>{
+      burst();
+    }, 3400);
+
+    function burst(){
+      const wrap = document.getElementById('confetti');
+      const colors = ['#ffd166','#06d6a0','#118ab2','#ef476f','#ff4d6d','#ff8fab'];
+      for(let i=0;i<120;i++){
+        const s = document.createElement('div');
+        s.className='piece';
+        s.style.left = Math.random()*100+'%';
+        s.style.background = colors[i%colors.length];
+        s.style.opacity = 1;
+        s.style.borderRadius = Math.random()>.5?'2px':'999px';
+        s.style.animation = `fall ${3+Math.random()*2}s ease-in forwards`;
+        s.style.animationDelay = (Math.random()*0.8)+'s';
+        wrap.appendChild(s);
+      }
+      setTimeout(()=>wrap.innerHTML='', 6000);
+    }
+
+    // Web Share API (fallback: copy link)
+    const btn = document.getElementById('shareBtn');
+    btn.addEventListener('click', async ()=>{
+      const url = new URL(location.href);
+      const t = document.getElementById('title').textContent;
+      const m = document.getElementById('text').textContent;
+      url.searchParams.set('title', t);
+      url.searchParams.set('msg', m);
+      const shareData = { title:'برای تو 💖', text:m, url:String(url) };
+      if(navigator.share){
+        try{ await navigator.share(shareData); }catch(e){}
+      }else{
+        await navigator.clipboard.writeText(String(url));
+        btn.textContent = 'لینک کپی شد ✨';
+        setTimeout(()=>btn.textContent='ارسال برای تو', 1600);
+      }
+    });
+  </script>
+</body>
+</html>
